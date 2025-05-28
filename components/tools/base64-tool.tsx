@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label"
 import { Copy, RotateCcw, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { useTranslation } from "@/lib/i18n"
 
 interface Base64ToolState {
   input: string
@@ -28,7 +27,6 @@ const initialState: Base64ToolState = {
 export function Base64Tool() {
   const [state, setState] = useLocalStorage<Base64ToolState>("base64-tool-state", initialState)
   const { toast } = useToast()
-  const { t } = useTranslation()
 
   const updateState = (updates: Partial<Base64ToolState>) => {
     setState((prev) => ({ ...prev, ...updates }))
@@ -134,8 +132,8 @@ export function Base64Tool() {
       updateState({ output })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: error instanceof Error ? error.message : t.messages.encodeFailed,
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to encode",
         variant: "destructive",
       })
     }
@@ -156,8 +154,8 @@ export function Base64Tool() {
       }
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.messages.invalidBase64,
+        title: "Error",
+        description: "Invalid Base64 string. Please check your input.",
         variant: "destructive",
       })
     }
@@ -167,13 +165,13 @@ export function Base64Tool() {
     try {
       await navigator.clipboard.writeText(state.output)
       toast({
-        title: t.messages.copied,
-        description: t.messages.copiedDescription,
+        title: "Copied!",
+        description: "Output copied to clipboard",
       })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.messages.copyFailed,
+        title: "Error",
+        description: "Failed to copy to clipboard",
         variant: "destructive",
       })
     }
@@ -186,8 +184,8 @@ export function Base64Tool() {
   const handleClearHistory = () => {
     setState(initialState)
     toast({
-      title: t.messages.historyCleared,
-      description: t.messages.historyClearedDescription,
+      title: "History Cleared",
+      description: "All saved data has been cleared",
     })
   }
 
@@ -207,12 +205,14 @@ export function Base64Tool() {
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{t.base64.title}</h1>
-          <p className="text-muted-foreground mt-2">{t.base64.description}</p>
+          <h1 className="text-3xl font-bold">Base64 Encoder/Decoder</h1>
+          <p className="text-muted-foreground mt-2">
+            Encode text or binary data to Base64, or decode Base64 strings back to text/binary
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleClearHistory} className="text-destructive">
           <Trash2 className="h-4 w-4 mr-2" />
-          {t.common.clearHistory}
+          Clear History
         </Button>
       </div>
 
@@ -221,13 +221,13 @@ export function Base64Tool() {
           variant={state.mode === "encode" ? "default" : "outline"}
           onClick={() => updateState({ mode: "encode" })}
         >
-          {t.common.encode}
+          Encode
         </Button>
         <Button
           variant={state.mode === "decode" ? "default" : "outline"}
           onClick={() => updateState({ mode: "decode" })}
         >
-          {t.common.decode}
+          Decode
         </Button>
 
         {state.mode === "encode" && (
@@ -237,16 +237,16 @@ export function Base64Tool() {
               checked={state.hexMode}
               onCheckedChange={(checked) => updateState({ hexMode: !!checked })}
             />
-            <Label htmlFor="hex-mode">{t.base64.inputHex}</Label>
+            <Label htmlFor="hex-mode">Input is hex string</Label>
           </div>
         )}
 
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={insertHexSample}>
-            {t.base64.hexSample}
+            Insert Hex Sample
           </Button>
           <Button variant="outline" size="sm" onClick={insertBinarySample}>
-            {t.base64.binarySample}
+            Insert Binary Sample
           </Button>
         </div>
       </div>
@@ -256,13 +256,13 @@ export function Base64Tool() {
       >
         <Card>
           <CardHeader>
-            <CardTitle>{t.common.input}</CardTitle>
+            <CardTitle>Input</CardTitle>
             <CardDescription>
               {state.mode === "encode"
                 ? state.hexMode
-                  ? t.base64.enterHexEncode
-                  : t.base64.enterTextEncode
-                : t.base64.enterBase64Decode}
+                  ? "Enter hex string to encode"
+                  : "Enter text to encode"
+                : "Enter Base64 string to decode"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -284,7 +284,7 @@ export function Base64Tool() {
                 disabled={!state.input.trim()}
                 className="flex-1"
               >
-                {state.mode === "encode" ? t.common.encode : t.common.decode}
+                {state.mode === "encode" ? "Encode" : "Decode"}
               </Button>
               <Button variant="outline" onClick={handleClear}>
                 <RotateCcw className="h-4 w-4" />
@@ -295,13 +295,13 @@ export function Base64Tool() {
 
         <Card className={state.mode === "decode" && state.outputType === "binary" ? "lg:col-span-1" : ""}>
           <CardHeader>
-            <CardTitle>{t.common.output}</CardTitle>
+            <CardTitle>Output</CardTitle>
             <CardDescription>
               {state.mode === "encode"
-                ? t.base64.base64EncodedResult
+                ? "Base64 encoded result"
                 : state.outputType === "text"
-                  ? t.base64.decodedTextResult
-                  : t.base64.binaryDataHex}
+                  ? "Decoded text result"
+                  : "Binary data (hex dump with ASCII)"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -311,16 +311,16 @@ export function Base64Tool() {
               className={`text-sm font-mono ${
                 state.mode === "decode" && state.outputType === "binary" ? "min-h-[400px] text-xs" : "min-h-[200px]"
               }`}
-              placeholder={t.base64.resultWillAppear}
+              placeholder="Result will appear here..."
             />
             <Button variant="outline" onClick={handleCopy} disabled={!state.output} className="w-full">
               <Copy className="h-4 w-4 mr-2" />
-              {t.common.copy}
+              Copy to Clipboard
             </Button>
             {state.mode === "decode" && state.outputType === "binary" && (
               <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-                <strong>{t.base64.binaryDataDetected}:</strong> {t.base64.showingHexDump}
-                {t.base64.nonPrintableChars}
+                <strong>Binary data detected:</strong> Showing hex dump with offsets and ASCII representation.
+                Non-printable characters are shown as dots (.).
               </div>
             )}
           </CardContent>

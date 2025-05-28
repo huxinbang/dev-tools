@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { I18nProvider } from "@/components/i18n-provider"
 import { Sidebar } from "@/components/sidebar"
 import { Base64Tool } from "@/components/tools/base64-tool"
 import { UrlTool } from "@/components/tools/url-tool"
@@ -12,7 +11,7 @@ import { YamlTool } from "@/components/tools/yaml-tool"
 
 export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml"
 
-function AppContent() {
+export default function HomePage() {
   const [activeTool, setActiveTool] = useState<ToolType>("base64")
 
   const renderTool = () => {
@@ -41,13 +40,5 @@ function AppContent() {
         <div className="container mx-auto p-6">{renderTool()}</div>
       </main>
     </div>
-  )
-}
-
-export default function HomePage() {
-  return (
-    <I18nProvider>
-      <AppContent />
-    </I18nProvider>
   )
 }

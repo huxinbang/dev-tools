@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, RotateCcw, CheckCircle, XCircle, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { useTranslation } from "@/lib/i18n"
 
 interface JsonToolState {
   input: string
@@ -28,7 +27,6 @@ const initialState: JsonToolState = {
 export function JsonTool() {
   const [state, setState] = useLocalStorage<JsonToolState>("json-tool-state", initialState)
   const { toast } = useToast()
-  const { t } = useTranslation()
 
   const updateState = (updates: Partial<JsonToolState>) => {
     setState((prev) => ({ ...prev, ...updates }))
@@ -66,13 +64,13 @@ export function JsonTool() {
     try {
       await navigator.clipboard.writeText(state.output)
       toast({
-        title: t.messages.copied,
-        description: t.json.copied_description,
+        title: "Copied!",
+        description: "Formatted JSON copied to clipboard",
       })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.messages.copy_failed,
+        title: "Error",
+        description: "Failed to copy to clipboard",
         variant: "destructive",
       })
     }
@@ -85,8 +83,8 @@ export function JsonTool() {
   const handleClearHistory = () => {
     setState(initialState)
     toast({
-      title: t.messages.history_cleared,
-      description: t.messages.history_cleared_description,
+      title: "History Cleared",
+      description: "All saved data has been cleared",
     })
   }
 
@@ -110,18 +108,20 @@ export function JsonTool() {
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{t.json.title}</h1>
-          <p className="text-muted-foreground mt-2">{t.json.description}</p>
+          <h1 className="text-3xl font-bold">JSON Formatter & Validator</h1>
+          <p className="text-muted-foreground mt-2">
+            Format, validate, and manipulate JSON data with syntax highlighting
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleClearHistory} className="text-destructive">
           <Trash2 className="h-4 w-4 mr-2" />
-          {t.json.clear_history}
+          Clear History
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
-          <Label htmlFor="indent">{t.json.indent_size}:</Label>
+          <Label htmlFor="indent">Indent Size:</Label>
           <Select value={state.indentSize} onValueChange={(value) => updateState({ indentSize: value })}>
             <SelectTrigger className="w-20">
               <SelectValue />
@@ -135,13 +135,13 @@ export function JsonTool() {
         </div>
 
         <Button variant="outline" onClick={insertSample}>
-          {t.json.insert_sample}
+          Insert Sample
         </Button>
 
         {state.isValid !== null && (
           <div className={`flex items-center gap-2 ${state.isValid ? "text-green-600" : "text-red-600"}`}>
             {state.isValid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-            <span className="text-sm font-medium">{state.isValid ? t.json.valid_json : t.json.invalid_json}</span>
+            <span className="text-sm font-medium">{state.isValid ? "Valid JSON" : "Invalid JSON"}</span>
           </div>
         )}
       </div>
@@ -149,8 +149,8 @@ export function JsonTool() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t.json.input_json}</CardTitle>
-            <CardDescription>{t.json.input_description}</CardDescription>
+            <CardTitle>Input JSON</CardTitle>
+            <CardDescription>Paste your JSON data here to format and validate</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Textarea
@@ -162,10 +162,10 @@ export function JsonTool() {
             {state.error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded border">{state.error}</div>}
             <div className="flex gap-2">
               <Button onClick={validateAndFormat} disabled={!state.input.trim()} className="flex-1">
-                {t.json.format}
+                Format
               </Button>
               <Button variant="outline" onClick={minifyJson} disabled={!state.input.trim()}>
-                {t.json.minify}
+                Minify
               </Button>
               <Button variant="outline" onClick={handleClear}>
                 <RotateCcw className="h-4 w-4" />
@@ -176,19 +176,19 @@ export function JsonTool() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t.json.formatted_output}</CardTitle>
-            <CardDescription>{t.json.output_description}</CardDescription>
+            <CardTitle>Formatted Output</CardTitle>
+            <CardDescription>Formatted and validated JSON result</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Textarea
               value={state.output}
               readOnly
               className="min-h-[300px] font-mono text-sm"
-              placeholder={t.json.output_placeholder}
+              placeholder="Formatted JSON will appear here..."
             />
             <Button variant="outline" onClick={handleCopy} disabled={!state.output} className="w-full">
               <Copy className="h-4 w-4 mr-2" />
-              {t.json.copy_formatted}
+              Copy Formatted JSON
             </Button>
           </CardContent>
         </Card>

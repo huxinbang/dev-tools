@@ -11,7 +11,6 @@ import { Copy, Clock, Globe, Check, ChevronsUpDown, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
-import { useTranslation } from "@/lib/i18n"
 
 // Comprehensive timezone list
 const timezones = [
@@ -110,7 +109,6 @@ export function TimestampTool() {
   const [open, setOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const { toast } = useToast()
-  const { t } = useTranslation()
 
   const updateState = (updates: Partial<TimestampToolState>) => {
     setState((prev) => ({ ...prev, ...updates }))
@@ -178,8 +176,8 @@ export function TimestampTool() {
       updateState({ datetime: formattedDate, convertedTimes: conversions })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.timestamp.invalidTimestampFormat,
+        title: "Error",
+        description: "Invalid timestamp format",
         variant: "destructive",
       })
     }
@@ -213,8 +211,8 @@ export function TimestampTool() {
       }
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.timestamp.invalidDateFormat,
+        title: "Error",
+        description: "Invalid date format",
         variant: "destructive",
       })
     }
@@ -224,13 +222,13 @@ export function TimestampTool() {
     try {
       await navigator.clipboard.writeText(state.timestamp)
       toast({
-        title: t.messages.copied,
-        description: t.timestamp.timestampCopied,
+        title: "Copied!",
+        description: "Timestamp copied to clipboard",
       })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.messages.failedToCopy,
+        title: "Error",
+        description: "Failed to copy to clipboard",
         variant: "destructive",
       })
     }
@@ -240,13 +238,13 @@ export function TimestampTool() {
     try {
       await navigator.clipboard.writeText(state.datetime)
       toast({
-        title: t.messages.copied,
-        description: t.timestamp.datetimeCopied,
+        title: "Copied!",
+        description: "Datetime copied to clipboard",
       })
     } catch (error) {
       toast({
-        title: t.messages.error,
-        description: t.messages.failedToCopy,
+        title: "Error",
+        description: "Failed to copy to clipboard",
         variant: "destructive",
       })
     }
@@ -255,8 +253,8 @@ export function TimestampTool() {
   const handleClearHistory = () => {
     setState(initialState)
     toast({
-      title: t.messages.historyCleared,
-      description: t.messages.dataCleared,
+      title: "History Cleared",
+      description: "All saved data has been cleared",
     })
   }
 
@@ -289,12 +287,14 @@ export function TimestampTool() {
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{t.timestamp.title}</h1>
-          <p className="text-muted-foreground mt-2">{t.timestamp.description}</p>
+          <h1 className="text-3xl font-bold">Unix Timestamp Converter</h1>
+          <p className="text-muted-foreground mt-2">
+            Convert between Unix timestamps and human-readable dates with timezone support
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleClearHistory} className="text-destructive">
           <Trash2 className="h-4 w-4 mr-2" />
-          {t.common.clearHistory}
+          Clear History
         </Button>
       </div>
 
@@ -302,25 +302,25 @@ export function TimestampTool() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            {t.timestamp.timezoneSettings}
+            Timezone Settings
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="timezone">{t.timestamp.selectTimezone}</Label>
+              <Label htmlFor="timezone">Select Timezone</Label>
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
-                    {selectedTimezone ? selectedTimezone.label : t.timestamp.selectTimezonePlaceholder}
+                    {selectedTimezone ? selectedTimezone.label : "Select timezone..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0" align="start">
                   <Command>
-                    <CommandInput placeholder={t.timestamp.searchTimezone} />
+                    <CommandInput placeholder="Search timezone..." />
                     <CommandList>
-                      <CommandEmpty>{t.timestamp.noTimezoneFound}</CommandEmpty>
+                      <CommandEmpty>No timezone found.</CommandEmpty>
                       {Object.entries(groupedTimezones).map(([region, tzList]) => (
                         <CommandGroup key={region} heading={region}>
                           {tzList.map((tz) => (
@@ -348,9 +348,7 @@ export function TimestampTool() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="text-sm text-muted-foreground">
-              {t.timestamp.currentOffset}: {currentOffset}
-            </div>
+            <div className="text-sm text-muted-foreground">Current offset: {currentOffset}</div>
           </div>
         </CardContent>
       </Card>
@@ -359,26 +357,26 @@ export function TimestampTool() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            {t.timestamp.currentTime} ({state.timezone})
+            Current Time ({state.timezone})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label>{t.timestamp.currentUnixTimestamp}</Label>
+              <Label>Current Unix Timestamp</Label>
               <div className="flex gap-2 mt-1">
                 <Input value={Math.floor(currentTime.getTime() / 1000)} readOnly className="font-mono" />
                 <Button variant="outline" onClick={setCurrentTimestamp}>
-                  {t.common.use}
+                  Use
                 </Button>
               </div>
             </div>
             <div>
-              <Label>{t.timestamp.currentDateTime}</Label>
+              <Label>Current Date & Time</Label>
               <div className="flex gap-2 mt-1">
                 <Input value={currentTimeInTimezone} readOnly className="font-mono" />
                 <Button variant="outline" onClick={setCurrentDatetime}>
-                  {t.common.use}
+                  Use
                 </Button>
               </div>
             </div>
@@ -389,8 +387,8 @@ export function TimestampTool() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t.timestamp.unixTimestamp}</CardTitle>
-            <CardDescription>{t.timestamp.enterUnixTimestamp}</CardDescription>
+            <CardTitle>Unix Timestamp</CardTitle>
+            <CardDescription>Enter Unix timestamp (seconds since epoch)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
@@ -401,7 +399,7 @@ export function TimestampTool() {
             />
             <div className="flex gap-2">
               <Button onClick={handleTimestampToDate} disabled={!state.timestamp.trim()} className="flex-1">
-                {t.timestamp.convertToDate}
+                Convert to Date
               </Button>
               <Button variant="outline" onClick={handleCopyTimestamp} disabled={!state.timestamp}>
                 <Copy className="h-4 w-4" />
@@ -412,10 +410,8 @@ export function TimestampTool() {
 
         <Card>
           <CardHeader>
-            <CardTitle>
-              {t.timestamp.dateTime} ({state.timezone})
-            </CardTitle>
-            <CardDescription>{t.timestamp.enterDateTime}</CardDescription>
+            <CardTitle>Date & Time ({state.timezone})</CardTitle>
+            <CardDescription>Enter date and time in selected timezone</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
@@ -426,7 +422,7 @@ export function TimestampTool() {
             />
             <div className="flex gap-2">
               <Button onClick={handleDateToTimestamp} disabled={!state.datetime.trim()} className="flex-1">
-                {t.timestamp.convertToTimestamp}
+                Convert to Timestamp
               </Button>
               <Button variant="outline" onClick={handleCopyDatetime} disabled={!state.datetime}>
                 <Copy className="h-4 w-4" />
@@ -439,8 +435,8 @@ export function TimestampTool() {
       {state.convertedTimes.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>{t.timestamp.otherTimezones}</CardTitle>
-            <CardDescription>{t.timestamp.sameTimestamp}</CardDescription>
+            <CardTitle>Other Timezones</CardTitle>
+            <CardDescription>Same timestamp in different timezones</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2">
