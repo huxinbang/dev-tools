@@ -9,8 +9,9 @@ import { Base64HexTool } from "@/components/tools/base64-hex-tool"
 import { JsonTool } from "@/components/tools/json-tool"
 import { YamlTool } from "@/components/tools/yaml-tool"
 import { ProtobufTool } from "@/components/tools/protobuf-tool"
+import { UuidTool } from "@/components/tools/uuid-tool"
 
-export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf"
+export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid"
 
 export default function HomePage() {
   const [activeTool, setActiveTool] = useState<ToolType>("base64")
@@ -31,6 +32,8 @@ export default function HomePage() {
         return <YamlTool />
       case "protobuf":
         return <ProtobufTool />
+      case "uuid":
+        return <UuidTool />
       default:
         return <Base64Tool />
     }
