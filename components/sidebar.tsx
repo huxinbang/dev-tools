@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Code2, Link, Clock, Hash, Braces, FileText, Wrench } from "lucide-react"
+import { Code2, Link, Clock, Hash, Braces, FileText, Wrench, Binary } from "lucide-react"
 import type { ToolType } from "@/app/page"
 
 interface SidebarProps {
@@ -47,6 +47,12 @@ const tools = [
     name: "YAML Validator",
     icon: FileText,
     description: "Validate and format YAML",
+  },
+  {
+    id: "protobuf" as ToolType,
+    name: "Protobuf Decoder",
+    icon: Binary,
+    description: "Decode protobuf messages",
   },
 ]
 

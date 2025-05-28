@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Copy, RotateCcw, CheckCircle, XCircle, Trash2 } from "lucide-react"
+import { Copy, RotateCcw, CheckCircle, XCircle, Trash2, Zap } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 
@@ -14,6 +14,7 @@ interface JsonToolState {
   indentSize: string
   isValid: boolean | null
   error: string
+  preserveOriginal: boolean
 }
 
 const initialState: JsonToolState = {
@@ -22,6 +23,7 @@ const initialState: JsonToolState = {
   indentSize: "2",
   isValid: null,
   error: "",
+  preserveOriginal: true,
 }
 
 export function JsonTool() {
@@ -32,11 +34,169 @@ export function JsonTool() {
     setState((prev) => ({ ...prev, ...updates }))
   }
 
+  // Check if a string is valid JSON
+  const isJsonString = (str: string): boolean => {
+    if (typeof str !== "string") return false
+    try {
+      const parsed = JSON.parse(str)
+      return typeof parsed === "object" && parsed !== null
+    } catch {
+      return false
+    }
+  }
+
+  // Check if a field name suggests it contains a timestamp
+  const isTimestampField = (fieldName: string): boolean => {
+    const timestampKeywords = [
+      "time",
+      "timestamp",
+      "created",
+      "updated",
+      "modified",
+      "date",
+      "expires",
+      "expiry",
+      "last",
+      "first",
+      "start",
+      "end",
+      "at",
+      "when",
+      "moment",
+      "epoch",
+      "unix",
+    ]
+    const lowerFieldName = fieldName.toLowerCase()
+    return timestampKeywords.some((keyword) => lowerFieldName.includes(keyword))
+  }
+
+  // Convert timestamp to human-readable format
+  const convertTimestamp = (value: number): string => {
+    try {
+      // Handle both seconds and milliseconds
+      // If the number is too large for seconds (> year 2100), assume milliseconds
+      // If the number is reasonable for seconds (between 1970 and 2100), use as seconds
+      let date: Date
+
+      if (value > 4102444800) {
+        // Year 2100 in seconds
+        // Assume milliseconds
+        date = new Date(value)
+      } else if (value > 946684800) {
+        // Year 2000 in seconds
+        // Assume seconds
+        date = new Date(value * 1000)
+      } else {
+        // Too small, might be invalid or very old
+        return value.toString()
+      }
+
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return value.toString()
+      }
+
+      // Format the date with timezone in 24-hour format
+      const isoString = date.toISOString()
+      const localString = date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false, // Ensure 24-hour format
+        timeZoneName: "short",
+      })
+
+      return `${isoString} (${localString})`
+    } catch {
+      return value.toString()
+    }
+  }
+
+  // Smart decode function that processes JSON recursively
+  const smartDecode = (obj: any, parentKey = ""): any => {
+    if (Array.isArray(obj)) {
+      return obj.map((item, index) => smartDecode(item, `${parentKey}[${index}]`))
+    }
+
+    if (obj !== null && typeof obj === "object") {
+      const result: any = {}
+
+      for (const [key, value] of Object.entries(obj)) {
+        const fullKey = parentKey ? `${parentKey}.${key}` : key
+
+        if (typeof value === "string") {
+          // Try to decode JSON strings
+          if (isJsonString(value)) {
+            try {
+              const parsed = JSON.parse(value)
+              if (state.preserveOriginal) {
+                result[key] = {
+                  _smartDecoded: "JSON string decoded",
+                  _original: value,
+                  ...smartDecode(parsed, fullKey),
+                }
+              } else {
+                result[key] = smartDecode(parsed, fullKey)
+              }
+            } catch {
+              result[key] = value
+            }
+          } else {
+            result[key] = value
+          }
+        } else if (typeof value === "number" && isTimestampField(key)) {
+          // Convert timestamp fields
+          if (state.preserveOriginal) {
+            result[key] = {
+              _smartDecoded: "Timestamp converted",
+              _original: value,
+              _converted: convertTimestamp(value),
+            }
+          } else {
+            result[key] = convertTimestamp(value)
+          }
+        } else if (value !== null && typeof value === "object") {
+          // Recursively process nested objects
+          result[key] = smartDecode(value, fullKey)
+        } else {
+          result[key] = value
+        }
+      }
+
+      return result
+    }
+
+    return obj
+  }
+
   const validateAndFormat = () => {
     try {
       const parsed = JSON.parse(state.input)
       const formatted = JSON.stringify(parsed, null, Number.parseInt(state.indentSize))
       updateState({ output: formatted, isValid: true, error: "" })
+    } catch (err) {
+      updateState({
+        isValid: false,
+        error: err instanceof Error ? err.message : "Invalid JSON",
+        output: "",
+      })
+    }
+  }
+
+  const smartDecodeAndFormat = () => {
+    try {
+      const parsed = JSON.parse(state.input)
+      const smartDecoded = smartDecode(parsed)
+      const formatted = JSON.stringify(smartDecoded, null, Number.parseInt(state.indentSize))
+      updateState({ output: formatted, isValid: true, error: "" })
+
+      toast({
+        title: "Smart Decode Complete!",
+        description: "JSON strings decoded and timestamps converted",
+      })
     } catch (err) {
       updateState({
         isValid: false,
@@ -93,6 +253,11 @@ export function JsonTool() {
       name: "John Doe",
       age: 30,
       email: "john@example.com",
+      created_time: 1640995200,
+      updated_timestamp: 1640995200000,
+      last_login: 1703980800,
+      metadata: '{"theme": "dark", "notifications": true}',
+      config: '{"api_key": "abc123", "timeout": 5000}',
       address: {
         street: "123 Main St",
         city: "New York",
@@ -104,13 +269,41 @@ export function JsonTool() {
     updateState({ input: JSON.stringify(sample) })
   }
 
+  const insertComplexSample = () => {
+    const complexSample = {
+      user: {
+        id: 12345,
+        profile: '{"firstName": "Jane", "lastName": "Smith", "preferences": {"theme": "light", "language": "en"}}',
+        timestamps: {
+          created_at: 1640995200,
+          last_modified_time: 1703980800000,
+          expires_timestamp: 1735516800,
+        },
+      },
+      events: [
+        {
+          event_time: 1703980800,
+          data: '{"action": "login", "ip": "192.168.1.1", "user_agent": "Mozilla/5.0"}',
+          metadata: '{"session_id": "sess_123", "duration": 3600}',
+        },
+        {
+          event_time: 1703984400000,
+          data: '{"action": "logout", "reason": "timeout"}',
+          metadata: '{"session_duration": 7200}',
+        },
+      ],
+      settings: '{"notifications": {"email": true, "push": false}, "privacy": {"analytics": false}}',
+    }
+    updateState({ input: JSON.stringify(complexSample) })
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold">JSON Formatter & Validator</h1>
           <p className="text-muted-foreground mt-2">
-            Format, validate, and manipulate JSON data with syntax highlighting
+            Format, validate, and manipulate JSON data with Smart Decode for nested JSON and timestamps
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleClearHistory} className="text-destructive">
@@ -134,8 +327,25 @@ export function JsonTool() {
           </Select>
         </div>
 
+        <div className="flex items-center gap-2">
+          <Label htmlFor="preserve-original" className="cursor-pointer">
+            <input
+              type="checkbox"
+              id="preserve-original"
+              className="mr-2"
+              checked={state.preserveOriginal}
+              onChange={(e) => updateState({ preserveOriginal: e.target.checked })}
+            />
+            Preserve Original Values
+          </Label>
+        </div>
+
         <Button variant="outline" onClick={insertSample}>
           Insert Sample
+        </Button>
+
+        <Button variant="outline" onClick={insertComplexSample}>
+          Insert Complex Sample
         </Button>
 
         {state.isValid !== null && (
@@ -164,6 +374,16 @@ export function JsonTool() {
               <Button onClick={validateAndFormat} disabled={!state.input.trim()} className="flex-1">
                 Format
               </Button>
+              <Button
+                onClick={smartDecodeAndFormat}
+                disabled={!state.input.trim()}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Smart Decode
+              </Button>
+            </div>
+            <div className="flex gap-2">
               <Button variant="outline" onClick={minifyJson} disabled={!state.input.trim()}>
                 Minify
               </Button>
@@ -193,6 +413,36 @@ export function JsonTool() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-700">
+            <Zap className="h-5 w-5" />
+            Smart Decode Features
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-blue-600">
+          <ul className="space-y-1">
+            <li>
+              • <strong>JSON String Detection:</strong> Automatically detects and decodes JSON strings within fields
+            </li>
+            <li>
+              • <strong>Timestamp Conversion:</strong> Converts numeric fields with time-related names to human-readable
+              dates
+            </li>
+            <li>
+              • <strong>Smart Detection:</strong> Handles both seconds and milliseconds timestamps automatically
+            </li>
+            <li>
+              • <strong>Nested Processing:</strong> Recursively processes all nested objects and arrays
+            </li>
+            <li>
+              • <strong>Original Preservation (Optional):</strong> Option to keep original values alongside decoded
+              versions
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   )
 }
