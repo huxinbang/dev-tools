@@ -23,7 +23,7 @@ const initialState: JsonToolState = {
   indentSize: "2",
   isValid: null,
   error: "",
-  preserveOriginal: true,
+  preserveOriginal: false, // Changed from true to false
 }
 
 export function JsonTool() {
@@ -70,7 +70,7 @@ export function JsonTool() {
     return timestampKeywords.some((keyword) => lowerFieldName.includes(keyword))
   }
 
-  // Convert timestamp to human-readable format
+  // Convert timestamp to ISO string format in local timezone
   const convertTimestamp = (value: number): string => {
     try {
       // Handle both seconds and milliseconds
@@ -96,20 +96,23 @@ export function JsonTool() {
         return value.toString()
       }
 
-      // Format the date with timezone in 24-hour format
-      const isoString = date.toISOString()
-      const localString = date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false, // Ensure 24-hour format
-        timeZoneName: "short",
-      })
+      // Get timezone offset in minutes
+      const timezoneOffset = date.getTimezoneOffset()
 
-      return `${isoString} (${localString})`
+      // Create a new date adjusted for local timezone
+      const localDate = new Date(date.getTime() - timezoneOffset * 60000)
+
+      // Get the ISO string and replace 'Z' with timezone offset
+      const isoString = localDate.toISOString()
+
+      // Format timezone offset as +/-HH:MM
+      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+      const offsetMinutes = Math.abs(timezoneOffset) % 60
+      const offsetSign = timezoneOffset <= 0 ? "+" : "-"
+      const timezoneString = `${offsetSign}${offsetHours.toString().padStart(2, "0")}:${offsetMinutes.toString().padStart(2, "0")}`
+
+      // Replace 'Z' with the actual timezone offset
+      return isoString.replace("Z", timezoneString)
     } catch {
       return value.toString()
     }
@@ -427,8 +430,8 @@ export function JsonTool() {
               • <strong>JSON String Detection:</strong> Automatically detects and decodes JSON strings within fields
             </li>
             <li>
-              • <strong>Timestamp Conversion:</strong> Converts numeric fields with time-related names to human-readable
-              dates
+              • <strong>Timestamp Conversion:</strong> Converts numeric fields with time-related names to ISO format in
+              local timezone
             </li>
             <li>
               • <strong>Smart Detection:</strong> Handles both seconds and milliseconds timestamps automatically

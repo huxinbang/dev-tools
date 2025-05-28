@@ -163,18 +163,32 @@ export function ProtobufTool() {
     return { value, newOffset }
   }
 
-  // Enhanced proto file parser that extracts message types and their fields
+  // Enhanced proto file parser that extracts message types, their fields, and enums
   const parseProtoDefinition = (protoText: string) => {
     const messages: {
       [messageName: string]: { [fieldNumber: number]: { name: string; type: string; repeated: boolean } }
     } = {}
+    const enums: {
+      [enumName: string]: { [value: number]: string }
+    } = {}
+
     const lines = protoText.split("\n")
     let currentMessage = ""
+    let currentEnum = ""
     let braceCount = 0
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim()
       if (line.startsWith("//") || line === "") continue
+
+      // Match enum definition
+      const enumMatch = line.match(/^enum\s+(\w+)\s*\{/)
+      if (enumMatch) {
+        currentEnum = enumMatch[1]
+        enums[currentEnum] = {}
+        braceCount = 1
+        continue
+      }
 
       // Match message definition
       const messageMatch = line.match(/^message\s+(\w+)\s*\{/)
@@ -185,9 +199,18 @@ export function ProtobufTool() {
         continue
       }
 
-      // Track braces to know when we're inside a message
+      // Track braces to know when we're inside a message or enum
       braceCount += (line.match(/\{/g) || []).length
       braceCount -= (line.match(/\}/g) || []).length
+
+      if (currentEnum && braceCount > 0) {
+        // Match enum value definitions like: UNKNOWN = 0;
+        const enumValueMatch = line.match(/^\s*(\w+)\s*=\s*(\d+)\s*;/)
+        if (enumValueMatch) {
+          const [, name, value] = enumValueMatch
+          enums[currentEnum][Number.parseInt(value)] = name
+        }
+      }
 
       if (currentMessage && braceCount > 0) {
         // Match field definitions like: string name = 1;
@@ -204,10 +227,11 @@ export function ProtobufTool() {
 
       if (braceCount === 0) {
         currentMessage = ""
+        currentEnum = ""
       }
     }
 
-    return messages
+    return { messages, enums }
   }
 
   // Get available message types from proto definition
@@ -215,7 +239,7 @@ export function ProtobufTool() {
     if (!state.protoDefinition.trim()) return []
 
     try {
-      const messages = parseProtoDefinition(state.protoDefinition)
+      const { messages } = parseProtoDefinition(state.protoDefinition)
       return Object.keys(messages)
     } catch {
       return []
@@ -223,7 +247,7 @@ export function ProtobufTool() {
   }
 
   // Decode with proto definition for specific message type
-  const decodeWithProto = (buffer: Uint8Array, protoMessages: any, messageType: string): any => {
+  const decodeWithProto = (buffer: Uint8Array, protoMessages: any, protoEnums: any, messageType: string): any => {
     const messageFields = protoMessages[messageType]
     if (!messageFields) {
       throw new Error(`Message type "${messageType}" not found in proto definition`)
@@ -248,11 +272,20 @@ export function ProtobufTool() {
         switch (wireType) {
           case 0: // Varint
             const { value: varintValue, newOffset: varintOffset } = readVarint(buffer, offset)
+
             if (fieldInfo && fieldInfo.type === "bool") {
               fieldValue = varintValue !== 0
+            } else if (fieldInfo && protoEnums[fieldInfo.type]) {
+              // Handle enum fields
+              const enumName = protoEnums[fieldInfo.type][varintValue]
+              if (enumName) {
+                fieldValue = `${enumName} (${varintValue})`
+              } else {
+                fieldValue = `UNKNOWN_ENUM_VALUE (${varintValue})`
+              }
             } else if (fieldInfo && (fieldInfo.type === "int32" || fieldInfo.type === "int64")) {
               fieldValue = varintValue
-            } else if ((fieldInfo && fieldInfo.type === "uint32") || fieldInfo.type === "uint64") {
+            } else if (fieldInfo && (fieldInfo.type === "uint32" || fieldInfo.type === "uint64")) {
               fieldValue = varintValue >>> 0 // Unsigned
             } else {
               fieldValue = varintValue
@@ -289,7 +322,7 @@ export function ProtobufTool() {
                 .join(" ")}]`
             } else if (fieldInfo && protoMessages[fieldInfo.type]) {
               // Nested message type
-              fieldValue = decodeWithProto(data, protoMessages, fieldInfo.type)
+              fieldValue = decodeWithProto(data, protoMessages, protoEnums, fieldInfo.type)
             } else {
               // Try as string first, then as nested message
               try {
@@ -365,8 +398,8 @@ export function ProtobufTool() {
         }
 
         // Parse proto definition and decode with schema
-        const protoMessages = parseProtoDefinition(state.protoDefinition)
-        decoded = decodeWithProto(buffer, protoMessages, state.selectedMessage)
+        const { messages, enums } = parseProtoDefinition(state.protoDefinition)
+        decoded = decodeWithProto(buffer, messages, enums, state.selectedMessage)
       } else {
         // Decode without schema
         decoded = decodeWithoutProto(buffer)
@@ -417,13 +450,27 @@ export function ProtobufTool() {
   }
 
   const insertSample = () => {
-    // Sample protobuf message (Person with name="John", id=123, email="john@example.com")
-    const sampleBase64 = "CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20="
+    // Sample protobuf message with enum (Person with name="John", id=123, email="john@example.com", status=ACTIVE)
+    const sampleBase64 = "CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20gAQ=="
     updateState({ input: sampleBase64 })
   }
 
   const insertSampleProto = () => {
     const sampleProto = `syntax = "proto3";
+
+enum Status {
+  UNKNOWN = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  PENDING = 3;
+}
+
+enum Priority {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+  CRITICAL = 3;
+}
 
 message Person {
   string name = 1;
@@ -431,18 +478,22 @@ message Person {
   string email = 3;
   repeated string phone = 4;
   bool active = 5;
+  Status status = 6;
+  Priority priority = 7;
 }
 
 message Company {
   string name = 1;
   repeated Person employees = 2;
   string address = 3;
+  Status company_status = 4;
 }
 
 message Response {
-  int32 status = 1;
+  int32 status_code = 1;
   string message = 2;
   Person person = 3;
+  Status result_status = 4;
 }`
     updateState({ protoDefinition: sampleProto, selectedMessage: "Person" })
   }
@@ -498,7 +549,7 @@ message Response {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea
-                  placeholder="CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20="
+                  placeholder="CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20gAQ=="
                   value={state.input}
                   onChange={(e) => updateState({ input: e.target.value })}
                   className="min-h-[200px] font-mono text-sm"
@@ -557,21 +608,24 @@ message Response {
             <Card>
               <CardHeader>
                 <CardTitle>Proto Definition</CardTitle>
-                <CardDescription>Paste your .proto file content here for better field names</CardDescription>
+                <CardDescription>
+                  Paste your .proto file content here for better field names and enum support
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea
                   placeholder={`syntax = "proto3";
 
+enum Status {
+  UNKNOWN = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+}
+
 message Person {
   string name = 1;
   int32 id = 2;
-  string email = 3;
-}
-
-message Company {
-  string name = 1;
-  repeated Person employees = 2;
+  Status status = 3;
 }`}
                   value={state.protoDefinition}
                   onChange={(e) => updateState({ protoDefinition: e.target.value })}
@@ -609,7 +663,7 @@ message Company {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
-                    placeholder="CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20="
+                    placeholder="CgRKb2huEHsaEGpvaG5AZXhhbXBsZS5jb20gAQ=="
                     value={state.input}
                     onChange={(e) => updateState({ input: e.target.value })}
                     className="min-h-[200px] font-mono text-sm"
@@ -636,7 +690,7 @@ message Company {
                 <CardHeader>
                   <CardTitle>Decoded Output</CardTitle>
                   <CardDescription>
-                    Decoded protobuf message with field names
+                    Decoded protobuf message with field names and enum values
                     {state.selectedMessage && ` (${state.selectedMessage})`}
                   </CardDescription>
                 </CardHeader>
@@ -672,6 +726,10 @@ message Company {
             </li>
             <li>
               • <strong>With Proto:</strong> Uses proto definition for proper field names and types
+            </li>
+            <li>
+              • <strong>Enum Support:</strong> Converts enum values to their names (e.g., "ACTIVE (1)" instead of just
+              "1")
             </li>
             <li>
               • <strong>Message Type Selection:</strong> Choose which message type to decode when proto has multiple
