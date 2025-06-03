@@ -70,6 +70,13 @@ const tools = [
     description: "Generate unique identifiers",
     keywords: ["uuid", "guid", "unique", "identifier", "generate", "random", "id", "key"],
   },
+  {
+    id: "hex-string" as ToolType,
+    name: "Hex <-> String",
+    icon: Hash,
+    description: "Convert between Hex and String, easy editing and viewing.",
+    keywords: ["hex", "string", "hexadecimal", "convert", "edit", "view", "text"],
+  },
 ]
 
 export function Sidebar({ activeTool, onToolChange }: SidebarProps) {

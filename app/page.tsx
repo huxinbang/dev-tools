@@ -10,9 +10,10 @@ import { JsonTool } from "@/components/tools/json-tool"
 import { YamlTool } from "@/components/tools/yaml-tool"
 import { ProtobufTool } from "@/components/tools/protobuf-tool"
 import { UuidTool } from "@/components/tools/uuid-tool"
+import { HexStringTool } from "@/components/tools/hex-string-tool"
 import { useEffect } from "react"
 
-export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid"
+export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid" | "hex-string"
 
 const toolTitles: Record<ToolType, string> = {
   base64: "Base64 Encoder/Decoder",
@@ -23,6 +24,7 @@ const toolTitles: Record<ToolType, string> = {
   yaml: "YAML Validator & Formatter",
   protobuf: "Protobuf Decoder",
   uuid: "UUID Generator",
+  "hex-string": "Hex <-> String Converter",
 }
 
 export default function HomePage() {
@@ -48,6 +50,7 @@ export default function HomePage() {
         protobuf:
           "Free Protobuf decoder. Decode base64 encoded protobuf messages with or without proto definition files.",
         uuid: "Free UUID generator. Generate various types of UUIDs including v1, v3, v4, v5, NIL, and Max UUIDs.",
+        "hex-string": "Free Hex <-> String converter. Convert between hexadecimal and string representations, easy editing and viewing.",
       }
       metaDescription.setAttribute("content", descriptions[activeTool])
     }
@@ -71,6 +74,8 @@ export default function HomePage() {
         return <ProtobufTool />
       case "uuid":
         return <UuidTool />
+      case "hex-string":
+        return <HexStringTool />
       default:
         return <Base64Tool />
     }
