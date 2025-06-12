@@ -1,12 +1,14 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Copy, RotateCcw, CheckCircle, XCircle, Trash2, Zap } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { Textarea } from "@/components/ui/textarea"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { useToast } from "@/hooks/use-toast"
+import { CheckCircle, Copy, RotateCcw, Trash2, XCircle, Zap } from "lucide-react"
+import dynamic from "next/dynamic"
+const ReactJson = dynamic(() => import("react-json-view"), { ssr: false })
 
 interface JsonToolState {
   input: string
@@ -403,11 +405,13 @@ export function JsonTool() {
             <CardDescription>Formatted and validated JSON result</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Textarea
-              value={state.output}
-              readOnly
-              className="min-h-[300px] font-mono text-sm"
-              placeholder="Formatted JSON will appear here..."
+            <ReactJson
+              src={state.output ? JSON.parse(state.output) : {}}
+              name={false}
+              collapsed={1}
+              displayDataTypes={false}
+              enableClipboard={false}
+              style={{ padding: "1rem", backgroundColor: "#f8fafc", borderRadius: "0.5rem" }}
             />
             <Button variant="outline" onClick={handleCopy} disabled={!state.output} className="w-full">
               <Copy className="h-4 w-4 mr-2" />
