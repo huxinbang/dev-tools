@@ -8,6 +8,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage"
 import { useToast } from "@/hooks/use-toast"
 import { CheckCircle, Copy, RotateCcw, Trash2, XCircle, Zap } from "lucide-react"
 import dynamic from "next/dynamic"
+import { useState } from "react"
 const ReactJson = dynamic(() => import("react-json-view"), { ssr: false })
 
 interface JsonToolState {
@@ -302,6 +303,11 @@ export function JsonTool() {
     updateState({ input: JSON.stringify(complexSample) })
   }
 
+  const [collapseAll, setCollapseAll] = useState(false);
+
+  const handleExpandAll = () => setCollapseAll(false);
+  const handleCollapseAll = () => setCollapseAll(true);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
@@ -405,10 +411,18 @@ export function JsonTool() {
             <CardDescription>Formatted and validated JSON result</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex space-x-2">
+              <Button variant="outline" onClick={handleExpandAll}>
+                Expand All
+              </Button>
+              <Button variant="outline" onClick={handleCollapseAll}>
+                Collapse All
+              </Button>
+            </div>
             <ReactJson
               src={state.output ? JSON.parse(state.output) : {}}
               name={false}
-              collapsed={1}
+              shouldCollapse={(field) => collapseAll}
               displayDataTypes={false}
               enableClipboard={false}
               style={{ padding: "1rem", backgroundColor: "#f8fafc", borderRadius: "0.5rem" }}
