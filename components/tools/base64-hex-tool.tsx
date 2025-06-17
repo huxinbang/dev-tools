@@ -1,11 +1,11 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw } from "lucide-react"
-import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 export function Base64HexTool() {
   const [input, setInput] = useState("")
@@ -47,31 +47,11 @@ export function Base64HexTool() {
     }
   }
 
-  // 格式化 hex 输出为三列：地址、hex、ascii
-  function formatHexView(hex: string): string {
-    const cleanHex = hex.replace(/[^0-9A-Fa-f]/g, "")
-    let result = ""
-    for (let offset = 0; offset < cleanHex.length; offset += 32) {
-      const hexSlice = cleanHex.slice(offset, offset + 32)
-      const bytes = hexSlice.match(/.{1,2}/g) || []
-      const address = `0x${(offset / 2).toString(16).padStart(6, "0")}:`
-      const hexPart = bytes.map(b => b.padEnd(2, " ")).join(" ")
-      const asciiPart = bytes
-        .map(b => {
-          const code = parseInt(b, 16)
-          return code >= 32 && code <= 126 ? String.fromCharCode(code) : "."
-        })
-        .join("")
-      result += `${address} ${hexPart.padEnd(48, " ")} ${asciiPart}\n`
-    }
-    return result.trimEnd()
-  }
-
   const handleConvert = () => {
     try {
       if (mode === "base64-to-hex") {
-        const hex = base64ToHex(input)
-        setOutput(formatHexView(hex))
+        const result = base64ToHex(input)
+        setOutput(result)
       } else {
         const result = hexToBase64(input)
         setOutput(result)

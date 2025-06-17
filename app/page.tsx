@@ -1,19 +1,19 @@
 "use client"
 
+import { useState } from "react"
 import { Sidebar } from "@/components/sidebar"
-import { Base64HexTool } from "@/components/tools/base64-hex-tool"
 import { Base64Tool } from "@/components/tools/base64-tool"
-import { HexStringTool } from "@/components/tools/hex-string-tool"
-import { JsonTool } from "@/components/tools/json-tool"
-import { ProtobufTool } from "@/components/tools/protobuf-tool"
-import { TextHashTool } from "@/components/tools/text-hash-tool"
-import { TimestampTool } from "@/components/tools/timestamp-tool"
 import { UrlTool } from "@/components/tools/url-tool"
-import { UuidTool } from "@/components/tools/uuid-tool"
+import { TimestampTool } from "@/components/tools/timestamp-tool"
+import { Base64HexTool } from "@/components/tools/base64-hex-tool"
+import { JsonTool } from "@/components/tools/json-tool"
 import { YamlTool } from "@/components/tools/yaml-tool"
-import { useEffect, useState } from "react"
+import { ProtobufTool } from "@/components/tools/protobuf-tool"
+import { UuidTool } from "@/components/tools/uuid-tool"
+import { HexStringTool } from "@/components/tools/hex-string-tool"
+import { useEffect } from "react"
 
-export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid" | "hex-string" | "text-hash"
+export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid" | "hex-string"
 
 const toolTitles: Record<ToolType, string> = {
   base64: "Base64 Encoder/Decoder",
@@ -25,7 +25,6 @@ const toolTitles: Record<ToolType, string> = {
   protobuf: "Protobuf Decoder",
   uuid: "UUID Generator",
   "hex-string": "Hex <-> String Converter",
-  "text-hash": "Text Hash Generator",
 }
 
 export default function HomePage() {
@@ -77,8 +76,6 @@ export default function HomePage() {
         return <UuidTool />
       case "hex-string":
         return <HexStringTool />
-      case "text-hash":
-        return <TextHashTool />
       default:
         return <Base64Tool />
     }
