@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { cn } from "@/lib/utils"
+import type { ToolType } from "@/app/page"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Code2, Link, Clock, Hash, Braces, FileText, Wrench, Binary, Search, X, Key } from "lucide-react"
-import type { ToolType } from "@/app/page"
+import { cn } from "@/lib/utils"
+import { Binary, Braces, Clock, Code2, FileText, Hash, Key, Link, Search, Wrench, X } from "lucide-react"
+import { useState } from "react"
 
 interface SidebarProps {
   activeTool: ToolType
@@ -69,6 +69,13 @@ const tools = [
     icon: Key,
     description: "Generate unique identifiers",
     keywords: ["uuid", "guid", "unique", "identifier", "generate", "random", "id", "key"],
+  },
+  {
+    id: "text-hash" as ToolType,
+    name: "Text Hash Generator",
+    icon: Hash,
+    description: "Calculate MD5, SHA-1, SHA-256 hashes for text input",
+    keywords: ["hash", "md5", "sha1", "sha256", "checksum", "text", "calculate"],
   },
   {
     id: "hex-string" as ToolType,
