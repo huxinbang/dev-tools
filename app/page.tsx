@@ -11,9 +11,10 @@ import { YamlTool } from "@/components/tools/yaml-tool"
 import { ProtobufTool } from "@/components/tools/protobuf-tool"
 import { UuidTool } from "@/components/tools/uuid-tool"
 import { HexStringTool } from "@/components/tools/hex-string-tool"
+import JwtDecoderTool from "@/components/tools/jwt-token-tool"
 import { useEffect } from "react"
 
-export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid" | "hex-string"
+export type ToolType = "base64" | "url" | "timestamp" | "base64-hex" | "json" | "yaml" | "protobuf" | "uuid" | "hex-string" | "jwt-token"
 
 const toolTitles: Record<ToolType, string> = {
   base64: "Base64 Encoder/Decoder",
@@ -25,6 +26,7 @@ const toolTitles: Record<ToolType, string> = {
   protobuf: "Protobuf Decoder",
   uuid: "UUID Generator",
   "hex-string": "Hex <-> String Converter",
+  "jwt-token": "JWT Token Decoder",
 }
 
 export default function HomePage() {
@@ -51,6 +53,7 @@ export default function HomePage() {
           "Free Protobuf decoder. Decode base64 encoded protobuf messages with or without proto definition files.",
         uuid: "Free UUID generator. Generate various types of UUIDs including v1, v3, v4, v5, NIL, and Max UUIDs.",
         "hex-string": "Free Hex <-> String converter. Convert between hexadecimal and string representations, easy editing and viewing.",
+        "jwt-token": "Free JWT Token decoder. Decode and verify JWT tokens, view payload data, and check signatures.",
       }
       metaDescription.setAttribute("content", descriptions[activeTool])
     }
@@ -76,6 +79,8 @@ export default function HomePage() {
         return <UuidTool />
       case "hex-string":
         return <HexStringTool />
+      case "jwt-token":
+        return <JwtDecoderTool />
       default:
         return <Base64Tool />
     }

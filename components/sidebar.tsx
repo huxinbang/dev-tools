@@ -77,6 +77,13 @@ const tools = [
     description: "Convert between Hex and String, easy editing and viewing.",
     keywords: ["hex", "string", "hexadecimal", "convert", "edit", "view", "text"],
   },
+  {
+    id: "jwt-token" as ToolType,
+    name: "JWT Token Decoder",
+    icon: Key,
+    description: "Decode and view JWT token data",
+    keywords: ["jwt", "token", "decode", "json", "auth", "jwt decoder", "jwt viewer"],
+  },
 ]
 
 export function Sidebar({ activeTool, onToolChange }: SidebarProps) {
