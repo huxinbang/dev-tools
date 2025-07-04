@@ -1,9 +1,6 @@
-"use client"
-
 import Link from "next/link"
 
-export default function HomePage() {
-  // Only landing page content remains here
+export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background px-4">
       <div className="max-w-2xl w-full text-center py-16">
@@ -17,16 +14,10 @@ export default function HomePage() {
           <li>✔️ No sign-up, no tracking, no ads</li>
           <li>✔️ Open source, fast, and free for everyone</li>
         </ul>
-        <Link
-          href="/tools/base64"
-          className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition"
-        >
-          Start Using Tools
-        </Link>
+        <Link href="/tools/base64-tool" className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition">Start Using Tools</Link>
         <div className="mt-10 text-sm text-muted-foreground">
           <p>
-            <span className="font-semibold">Your privacy is our priority.</span> All features work offline after loading. No information is ever uploaded or shared. Explore the source code or contribute on {" "}
-            <a href="https://github.com/your-repo/dev-tools" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">GitHub</a>.
+            <span className="font-semibold">Your privacy is our priority.</span> All features work offline after loading. No information is ever uploaded or shared. Explore the source code or contribute on <a href="https://github.com/huxinbang/dev-tools" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">GitHub</a>.
           </p>
         </div>
       </div>
