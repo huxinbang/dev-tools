@@ -26,7 +26,7 @@ export default function HomePage() {
         <div className="mt-10 text-sm text-muted-foreground">
           <p>
             <span className="font-semibold">Your privacy is our priority.</span> All features work offline after loading. No information is ever uploaded or shared. Explore the source code or contribute on {" "}
-            <a href="https://github.com/your-repo/dev-tools" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">GitHub</a>.
+            <a href="https://github.com/huxinbang/dev-tools" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">GitHub</a>.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 # Dev Tools
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/huxinbangs-projects/v0-tools)
+[![GitHub Repo](https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github)](https://github.com/huxinbang/dev-tools)
 [![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/UqWLfNnsn1t)
 
 ## Overview
@@ -9,7 +9,7 @@ Dev Tools is a free, open-source suite of privacy-first developer utilities. All
 
 - **100% privacy:** No data collection or storage
 - **All processing in your browser**
-- **Open source** ([GitHub](https://github.com/your-repo/dev-tools))
+- **Open source** ([GitHub](https://github.com/huxinbang/dev-tools))
 - **Fast, modern UI**
 - **Works offline after loading**
 
@@ -32,7 +32,7 @@ Dev Tools is a free, open-source suite of privacy-first developer utilities. All
 
 ## Usage
 
-- Visit the [Home Page](https://vercel.com/huxinbangs-projects/v0-tools) for an introduction
+- Visit the [Home Page](https://github.com/huxinbang/dev-tools) for an introduction
 - Go to `/tools` to see all available tools
 - Each tool is accessible at its own path, e.g. `/tools/base64`, `/tools/json`, etc.
 
@@ -49,17 +49,13 @@ Dev Tools is a free, open-source suite of privacy-first developer utilities. All
    ```
 4. Open [http://localhost:3000](http://localhost:3000)
 
-## Deployment
-
-Deployed on [Vercel](https://vercel.com/huxinbangs-projects/v0-tools).
-
 ## Privacy
 
 **Your privacy is our priority.** All features work offline after loading. No information is ever uploaded or shared. All code is open source and can be audited.
 
 ## Contributing
 
-Contributions are welcome! Please open issues or pull requests on [GitHub](https://github.com/your-repo/dev-tools).
+Contributions are welcome! Please open issues or pull requests on [GitHub](https://github.com/huxinbang/dev-tools).
 
 ## License
 
