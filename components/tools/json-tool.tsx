@@ -65,6 +65,9 @@ export function JsonTool() {
       "moment",
       "epoch",
       "unix",
+      "iat",
+      "nbf",
+      "exp",
     ]
     const lowerFieldName = fieldName.toLowerCase()
     return timestampKeywords.some((keyword) => lowerFieldName.includes(keyword))

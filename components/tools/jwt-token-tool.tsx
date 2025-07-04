@@ -28,13 +28,13 @@ export default function JwtDecoderTool() {
     setPayload(null);
     try {
       const parts = jwt.split(".");
-      if (parts.length !== 3) throw new Error("JWT 必须包含三部分");
+      if (parts.length !== 3) throw new Error("JWT must have three parts");
       const headerJson = base64UrlDecode(parts[0]);
       const payloadJson = base64UrlDecode(parts[1]);
       setHeader(JSON.stringify(JSON.parse(headerJson), null, 2));
       setPayload(JSON.stringify(JSON.parse(payloadJson), null, 2));
     } catch (e: any) {
-      setError(e.message || "解析失败");
+      setError(e.message || "Failed to parse");
     }
   }
 
@@ -72,7 +72,7 @@ export default function JwtDecoderTool() {
               placeholder="Paste your JWT token here..."
               value={token}
               onChange={e => setToken(e.target.value)}
-              className="min-h-[120px] font-mono text-sm"
+              className="min-h-[200px] font-mono text-sm"
             />
             {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded border">{error}</div>}
             <div className="flex gap-2">
@@ -95,7 +95,7 @@ export default function JwtDecoderTool() {
               <Textarea
                 value={header || ""}
                 readOnly
-                className="min-h-[80px] font-mono text-sm"
+                className="min-h-[140px] font-mono text-sm"
                 placeholder="Header will appear here..."
               />
               <Button variant="outline" onClick={() => handleCopy(header)} disabled={!header} className="w-full mt-2">
@@ -112,7 +112,7 @@ export default function JwtDecoderTool() {
               <Textarea
                 value={payload || ""}
                 readOnly
-                className="min-h-[80px] font-mono text-sm"
+                className="min-h-[140px] font-mono text-sm"
                 placeholder="Payload will appear here..."
               />
               <Button variant="outline" onClick={() => handleCopy(payload)} disabled={!payload} className="w-full mt-2">
@@ -125,15 +125,15 @@ export default function JwtDecoderTool() {
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-blue-700">
-            JWT Token 说明
+            JWT Token Info
           </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-blue-600">
           <ul className="space-y-1">
-            <li>• <strong>Header:</strong> 描述签名算法和类型</li>
-            <li>• <strong>Payload:</strong> 主要数据内容（如用户信息、权限等）</li>
-            <li>• <strong>Signature:</strong> 用于校验数据完整性（本工具不解码）</li>
-            <li>• <strong>安全提示:</strong> 切勿在不可信环境下粘贴敏感 JWT Token</li>
+            <li>• <strong>Header:</strong> Describes the signing algorithm and type</li>
+            <li>• <strong>Payload:</strong> Main data content (e.g. user info, permissions, etc.)</li>
+            <li>• <strong>Signature:</strong> Used to verify data integrity (not decoded by this tool)</li>
+            <li>• <strong>Security Tip:</strong> Never paste sensitive JWT tokens in untrusted environments</li>
           </ul>
         </CardContent>
       </Card>
