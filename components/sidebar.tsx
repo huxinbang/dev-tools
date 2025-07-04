@@ -109,8 +109,7 @@ export function Sidebar({ activeTool, onToolChange }: SidebarProps) {
     <div className="w-80 border-r bg-muted/10">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Wrench className="h-6 w-6" />
-          <h1 className="text-xl font-bold">Dev Tools</h1>
+          <a href="/tools" className="text-xl font-bold hover:underline focus:underline">Tools</a>
         </div>
 
         {/* Search Bar */}

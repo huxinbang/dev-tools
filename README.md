@@ -32,7 +32,7 @@ Dev Tools is a free, open-source suite of privacy-first developer utilities. All
 
 ## Usage
 
-- Visit the [Home Page](https://github.com/huxinbang/dev-tools) for an introduction
+- Visit the [Home Page](https://huxinbang.github.io/dev-tools/) for an introduction
 - Go to `/tools` to see all available tools
 - Each tool is accessible at its own path, e.g. `/tools/base64`, `/tools/json`, etc.
 

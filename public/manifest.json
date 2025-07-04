@@ -2,7 +2,7 @@
   "name": "Dev Tools - All-in-One Developer Utilities",
   "short_name": "Dev Tools",
   "description": "Free online developer tools for encoding, decoding, formatting, and generating",
-  "start_url": "/",
+  "start_url": "/tools",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
