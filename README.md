@@ -1,7 +1,7 @@
 # Dev Tools
 
 [![GitHub Repo](https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github)](https://github.com/huxinbang/dev-tools)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/UqWLfNnsn1t)
+
 
 ## Overview
 
