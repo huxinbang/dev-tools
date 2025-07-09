@@ -215,21 +215,6 @@ export function JsonTool() {
     }
   }
 
-  const minifyJson = () => {
-    try {
-      const parsed = JSON.parse(state.input)
-      const minified = JSON.stringify(parsed)
-      updateState({ output: minified, isValid: true, error: "" })
-    } catch (err) {
-      updateState({
-        isValid: false,
-        error: err instanceof Error ? err.message : "Invalid JSON",
-        output: "",
-      })
-      showErrorToast(toast, err, "Invalid JSON")
-    }
-  }
-
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(state.output)
@@ -241,6 +226,24 @@ export function JsonTool() {
       toast({
         title: "Error",
         description: "Failed to copy to clipboard",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleCopyMinifiedJson = async () => {
+    try {
+      const parsed = JSON.parse(state.output || state.input)
+      const minified = JSON.stringify(parsed)
+      await navigator.clipboard.writeText(minified)
+      toast({
+        title: "Copied!",
+        description: "Minified JSON copied to clipboard",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy minified JSON",
         variant: "destructive",
       })
     }
@@ -394,9 +397,6 @@ export function JsonTool() {
               </Button>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={minifyJson} disabled={!state.input.trim()}>
-                Minify
-              </Button>
               <Button variant="outline" onClick={handleClear}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
@@ -419,6 +419,10 @@ export function JsonTool() {
             <Button variant="outline" onClick={handleCopy} disabled={!state.output} className="w-full">
               <Copy className="h-4 w-4 mr-2" />
               Copy Formatted JSON
+            </Button>
+            <Button variant="outline" onClick={handleCopyMinifiedJson} disabled={!(state.output || state.input)} className="w-full">
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Minified JSON
             </Button>
           </CardContent>
         </Card>
