@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Copy, Clock, Globe, Check, ChevronsUpDown, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { cn } from "@/lib/utils"
+import { cn, showErrorToast } from "@/lib/utils"
 
 // Comprehensive timezone list
 const timezones = [
@@ -175,11 +175,7 @@ export function TimestampTool() {
 
       updateState({ datetime: formattedDate, convertedTimes: conversions })
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Invalid timestamp format",
-        variant: "destructive",
-      })
+      showErrorToast(toast, error, "Invalid timestamp format")
     }
   }
 
@@ -210,11 +206,7 @@ export function TimestampTool() {
         updateState({ timestamp: Math.floor(date.getTime() / 1000).toString() })
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Invalid date format",
-        variant: "destructive",
-      })
+      showErrorToast(toast, error, "Invalid date format")
     }
   }
 

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Copy, RotateCcw, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { hexToBytes, bytesToBase64, base64ToBytes } from "@/lib/utils"
 
 interface Base64ToolState {
   input: string
@@ -30,37 +31,6 @@ export function Base64Tool() {
 
   const updateState = (updates: Partial<Base64ToolState>) => {
     setState((prev) => ({ ...prev, ...updates }))
-  }
-
-  const hexToBytes = (hex: string): Uint8Array => {
-    // Remove any whitespace and non-hex characters
-    const cleanHex = hex.replace(/[^0-9A-Fa-f]/g, "")
-    if (cleanHex.length % 2 !== 0) {
-      throw new Error("Invalid hex string: odd length")
-    }
-
-    const bytes = new Uint8Array(cleanHex.length / 2)
-    for (let i = 0; i < cleanHex.length; i += 2) {
-      bytes[i / 2] = Number.parseInt(cleanHex.substr(i, 2), 16)
-    }
-    return bytes
-  }
-
-  const bytesToBase64 = (bytes: Uint8Array): string => {
-    let binary = ""
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    return btoa(binary)
-  }
-
-  const base64ToBytes = (base64: string): Uint8Array => {
-    const binary = atob(base64)
-    const bytes = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i)
-    }
-    return bytes
   }
 
   const isTextData = (bytes: Uint8Array): boolean => {

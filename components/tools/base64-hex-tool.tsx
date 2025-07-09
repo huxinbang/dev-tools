@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { base64ToHex, hexToBase64 } from "@/lib/utils"
 
 export function Base64HexTool() {
   const [input, setInput] = useState("")
@@ -13,48 +14,12 @@ export function Base64HexTool() {
   const [mode, setMode] = useState<"base64-to-hex" | "hex-to-base64">("base64-to-hex")
   const { toast } = useToast()
 
-  const base64ToHex = (base64: string) => {
-    try {
-      const binary = atob(base64)
-      let hex = ""
-      for (let i = 0; i < binary.length; i++) {
-        const hexByte = binary.charCodeAt(i).toString(16).padStart(2, "0")
-        hex += hexByte
-      }
-      return hex.toUpperCase()
-    } catch (error) {
-      throw new Error("Invalid Base64 string")
-    }
-  }
-
-  const hexToBase64 = (hex: string) => {
-    try {
-      // Remove any spaces or non-hex characters
-      const cleanHex = hex.replace(/[^0-9A-Fa-f]/g, "")
-      if (cleanHex.length % 2 !== 0) {
-        throw new Error("Invalid hex string length")
-      }
-
-      let binary = ""
-      for (let i = 0; i < cleanHex.length; i += 2) {
-        const hexByte = cleanHex.substr(i, 2)
-        const byte = Number.parseInt(hexByte, 16)
-        binary += String.fromCharCode(byte)
-      }
-      return btoa(binary)
-    } catch (error) {
-      throw new Error("Invalid hex string")
-    }
-  }
-
   const handleConvert = () => {
     try {
       if (mode === "base64-to-hex") {
-        const result = base64ToHex(input)
-        setOutput(result)
+        setOutput(base64ToHex(input))
       } else {
-        const result = hexToBase64(input)
-        setOutput(result)
+        setOutput(hexToBase64(input))
       }
     } catch (error) {
       toast({

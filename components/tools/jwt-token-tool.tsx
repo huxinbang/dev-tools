@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Copy, RotateCcw } from "lucide-react"
+import { base64ToBytes, bytesToString } from "@/lib/utils"
 
 function base64UrlDecode(str: string) {
   str = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -13,7 +14,8 @@ function base64UrlDecode(str: string) {
     if (pad === 1) throw new Error("InvalidLengthError: Input base64url string is the wrong length to decode");
     str += new Array(5 - pad).join("=");
   }
-  return atob(str);
+  // 用 utils 的 base64ToBytes + bytesToString 保证一致性
+  return bytesToString(base64ToBytes(str));
 }
 
 export default function JwtDecoderTool() {

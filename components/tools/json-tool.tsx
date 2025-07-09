@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, RotateCcw, CheckCircle, XCircle, Trash2, Zap } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { showErrorToast } from "@/lib/utils"
 
 interface JsonToolState {
   input: string
@@ -189,6 +190,7 @@ export function JsonTool() {
         error: err instanceof Error ? err.message : "Invalid JSON",
         output: "",
       })
+      showErrorToast(toast, err, "Invalid JSON")
     }
   }
 
@@ -209,6 +211,7 @@ export function JsonTool() {
         error: err instanceof Error ? err.message : "Invalid JSON",
         output: "",
       })
+      showErrorToast(toast, err, "Invalid JSON")
     }
   }
 
@@ -223,6 +226,7 @@ export function JsonTool() {
         error: err instanceof Error ? err.message : "Invalid JSON",
         output: "",
       })
+      showErrorToast(toast, err, "Invalid JSON")
     }
   }
 

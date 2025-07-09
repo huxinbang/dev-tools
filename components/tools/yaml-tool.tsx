@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw, CheckCircle, XCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import * as yaml from "js-yaml"
+import { showErrorToast } from "@/lib/utils"
 
 export function YamlTool() {
   const [input, setInput] = useState("")

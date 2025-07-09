@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Copy, RefreshCw, Trash2, Key, Plus, Minus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { showErrorToast } from "@/lib/utils"
 
 interface UuidToolState {
   uuidVersion: string
@@ -164,11 +165,7 @@ export function UuidTool() {
         description: `Generated ${newUuids.length} UUID${newUuids.length > 1 ? "s" : ""}`,
       })
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate UUIDs",
-        variant: "destructive",
-      })
+      showErrorToast(toast, error, "Failed to generate UUIDs")
     }
   }
 
@@ -180,11 +177,7 @@ export function UuidTool() {
         description: "UUID copied to clipboard",
       })
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive",
-      })
+      showErrorToast(toast, error, "Failed to copy UUID")
     }
   }
 
@@ -197,11 +190,7 @@ export function UuidTool() {
         description: "All UUIDs copied to clipboard",
       })
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive",
-      })
+      showErrorToast(toast, error, "Failed to copy all UUIDs")
     }
   }
 

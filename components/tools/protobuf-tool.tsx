@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Copy, RotateCcw, CheckCircle, XCircle, Trash2, FileText, Binary } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { showErrorToast } from "@/lib/utils"
 
 interface ProtobufToolState {
   input: string
@@ -418,6 +419,7 @@ export function ProtobufTool() {
         error: err instanceof Error ? err.message : "Failed to decode protobuf",
         output: "",
       })
+      showErrorToast(toast, err, "Failed to decode protobuf")
     }
   }
 

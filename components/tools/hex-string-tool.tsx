@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { hexToBytes, bytesToHex, stringToBytes, bytesToString } from "@/lib/utils"
 
 export function HexStringTool() {
   const [input, setInput] = useState("")
@@ -13,42 +14,20 @@ export function HexStringTool() {
   const [mode, setMode] = useState<"hex-to-string" | "string-to-hex">("hex-to-string")
   const { toast } = useToast()
 
-  // Format hex for human readability: group by 2 chars, space every 2 bytes
+  // 格式化 hex 方便阅读
   const formatHex = (hex: string) => {
     const cleanHex = hex.replace(/[^0-9A-Fa-f]/g, "").toUpperCase()
     return cleanHex.replace(/(.{2})/g, "$1 ").trim()
   }
 
-  const hexToString = (hex: string) => {
-    try {
-      const cleanHex = hex.replace(/[^0-9A-Fa-f]/g, "")
-      if (cleanHex.length % 2 !== 0) {
-        throw new Error("Hex string length must be even")
-      }
-      let str = ""
-      for (let i = 0; i < cleanHex.length; i += 2) {
-        str += String.fromCharCode(parseInt(cleanHex.substring(i, i + 2), 16))
-      }
-      return str
-    } catch {
-      throw new Error("Invalid hex string")
-    }
-  }
-
-  const stringToHex = (str: string) => {
-    const hex = Array.from(str)
-      .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-      .join("")
-      .toUpperCase()
-    return formatHex(hex)
-  }
-
   const handleConvert = () => {
     try {
       if (mode === "hex-to-string") {
-        setOutput(hexToString(input))
+        const bytes = hexToBytes(input)
+        setOutput(bytesToString(bytes))
       } else {
-        setOutput(stringToHex(input))
+        const hex = bytesToHex(stringToBytes(input))
+        setOutput(formatHex(hex))
       }
     } catch (error: any) {
       setOutput("")
