@@ -168,6 +168,7 @@ export function TimestampTool() {
       // Show conversions in multiple timezones
       const conversions = [
         { timezone: "UTC", time: formatDateInTimezone(date, "UTC") },
+        { timezone: "Asia/Shanghai", time: formatDateInTimezone(date, "Asia/Shanghai") },
         { timezone: "America/New_York", time: formatDateInTimezone(date, "America/New_York") },
         { timezone: "Europe/London", time: formatDateInTimezone(date, "Europe/London") },
         { timezone: "Asia/Tokyo", time: formatDateInTimezone(date, "Asia/Tokyo") },
@@ -184,27 +185,15 @@ export function TimestampTool() {
       if (!state.datetime) {
         throw new Error("Invalid date")
       }
-
-      // Parse the datetime string and convert to timestamp
-      // The datetime input is in the selected timezone
-      const date = new Date(state.datetime + (state.timezone === "UTC" ? "Z" : ""))
-
-      if (state.timezone !== "UTC") {
-        // For non-UTC timezones, we need to adjust for the timezone offset
-        const tempDate = new Date(state.datetime)
-        const utcTime = tempDate.getTime() + tempDate.getTimezoneOffset() * 60000
-
-        // Get the offset for the selected timezone
-        const targetDate = new Date()
-        const utcDate = new Date(targetDate.toLocaleString("en-US", { timeZone: "UTC" }))
-        const tzDate = new Date(targetDate.toLocaleString("en-US", { timeZone: state.timezone }))
-        const tzOffset = tzDate.getTime() - utcDate.getTime()
-
-        const finalDate = new Date(utcTime - tzOffset)
-        updateState({ timestamp: Math.floor(finalDate.getTime() / 1000).toString() })
-      } else {
-        updateState({ timestamp: Math.floor(date.getTime() / 1000).toString() })
-      }
+      // Parse the datetime string and convert to timestamp in the selected timezone
+      const [datePart, timePart] = state.datetime.split("T")
+      if (!datePart || !timePart) throw new Error("Invalid date format")
+      // Use the selected timezone to get the correct UTC timestamp
+      const localeString = `${datePart} ${timePart}`
+      const dateInTz = new Date(
+        new Date(localeString).toLocaleString("en-US", { timeZone: state.timezone })
+      )
+      updateState({ timestamp: Math.floor(dateInTz.getTime() / 1000).toString() })
     } catch (error) {
       showErrorToast(toast, error, "Invalid date format")
     }
